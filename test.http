@@ -1,0 +1,38 @@
+#@host=https://<functionapp>.azurewebsites.net
+@host=http://localhost:7071
+ 
+# Use for setting the function name for the blob trigger
+@functionName=ProcessBlobUpload
+ 
+# Use for setting the blob container and blob name use for the blob trigger
+@blobContainer=unprocessed-pdf
+@blobName=employee_handbook.pdf
+ 
+### Send a sample event grid blob event to the blob trigger. blobContainer and blobName are set in the environment variables. The blob must exist before you call this function as it is retrieved by the trigger.
+POST  {{host}}/runtime/webhooks/blobs?functionName=Host.Functions.{{functionName}}
+content-type: application/json
+aeg-event-type: Notification
+ 
+{
+  "source": "/subscriptions/{subscription-id}/resourceGroups/my-storage-resource-group/providers/Microsoft.Storage/storageAccounts/my-storage-account",
+  "subject": "/blobServices/default/containers/{{blobContainer}}/blobs/{{blobName}}",
+  "type": "Microsoft.Storage.BlobCreated",
+  "time": "2021-08-16T02:51:26.4248221Z",
+  "id": "beb21a5e-401e-002b-3749-928517060431",
+  "data": {
+    "api": "PutBlob",
+    "clientRequestId": "89bc72c2-5dfe-4d9f-9706-43612c1bd01b",
+    "requestId": "beb21a5e-401e-002b-3749-928517000000",
+    "eTag": "0x8D96060BDA19D9D",
+    "contentType": "application/pdf",
+    "contentLength": 142977,
+    "blobType": "BlockBlob",
+    "accessTier": "Hot",
+    "url": "https://mystorage.blob.core.windows.net/{{blobContainer}}/{{blobName}}",
+    "sequencer": "0000000000000000000000000000B00D0000000005b058d3",
+    "storageDiagnostics": {
+      "batchId": "23f68872-a006-0065-0049-9240f2000000"
+    }
+  },
+  "specversion": "1.0"
+}

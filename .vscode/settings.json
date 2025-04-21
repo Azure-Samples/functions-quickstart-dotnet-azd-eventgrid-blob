@@ -1,0 +1,12 @@
+{
+    "azureFunctions.deploySubpath": "src/bin/Release/net8.0/publish",
+    "azureFunctions.projectLanguage": "C#",
+    "azureFunctions.projectRuntime": "~4",
+    "debug.internalConsoleOptions": "neverOpen",
+    "azureFunctions.preDeployTask": "publish (functions)",
+    "files.exclude": {
+        "__azurite*": true,
+        "__blobstorage__": true,
+        "__queuestorage__": true
+    }
+}
