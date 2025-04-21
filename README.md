@@ -21,6 +21,18 @@ languages:
 
 This template repository contains an Azure Functions reference sample using the Blob trigger with Event Grid source type, written in C# (isolated process mode) and deployed to Azure using the Azure Developer CLI (`azd`). When deployed to Azure the sample uses managed identity and a virtual network to make sure deployment is secure by default. You can opt out of a VNet being used in the sample by setting `SKIP_VNET` to true in the AZD parameters.
 
+## Benefits of Event Grid Blob Trigger
+
+This sample uses the Event Grid source type for the Blob trigger, which provides significant advantages over the traditional scan-based approach:
+
+- **Near real-time processing**: Event Grid delivers blob events within milliseconds of creation, eliminating the delays associated with container scanning.
+- **Improved scalability**: Perfect for Flex Consumption plans where the traditional polling-based Blob trigger isn't available.
+- **Reduced costs**: Eliminates storage transaction costs from polling, which can be substantial with large numbers of blobs.
+- **Enhanced reliability**: Uses a robust pub/sub model that ensures blob events aren't missed, even during function downtime.
+- **Better performance**: No performance degradation with large numbers of blobs in a container, unlike the scan-based approach.
+
+The Event Grid approach is recommended for all new Blob trigger implementations, especially when using Flex Consumption plans where the traditional storage polling method isn't available.
+
 ## Prerequisites
 
 + [.NET 8 SDK](https://dotnet.microsoft.com/download/dotnet/8.0)
@@ -112,7 +124,7 @@ Create two containers in the local storage emulator called `processed-pdf` and `
 
   **Using the terminal**
 
-+ From the `http` folder, run this command to start the Functions host locally:
++ From the `src` folder, run this command to start the Functions host locally:
 
     ```bash
     func start
@@ -133,7 +145,7 @@ Create two containers in the local storage emulator called `processed-pdf` and `
 
 Now that the storage emulator is running, has files on the `unprocessed-pdf` container, and our app is running, we can execute the `ProcessBlobUpload` function to simulate a new blob event.
 
-+ If you are using VS Code or Visual Studio, you can also open the [`test.http`](./test.http) project file, update the port on the `localhost` URL (if needed), and then click on Send Request to call the locally running `ProcessBlobUpload` function.
++ If you are using VS Code or Visual Studio, you can open the [`test.http`](./test.http) project file, update the port on the `localhost` URL (if needed), and then click on Send Request to call the locally running `ProcessBlobUpload` function.
 
 + Otherwise, use an HTTP client tool for making HTTP calls and send a **POST** to `http://localhost:7071/runtime/webhooks/blobs?functionName=Host.Functions.ProcessBlobUpload` (update the port if needed), headers `content-type: application/json` and `aeg-event-type: Notification`, with the following body:
 
