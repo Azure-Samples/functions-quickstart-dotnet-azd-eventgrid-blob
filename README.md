@@ -21,6 +21,8 @@ languages:
 
 This template repository contains an Azure Functions reference sample using the Blob trigger with Event Grid source type, written in C# (isolated process mode) and deployed to Azure using the Azure Developer CLI (`azd`). When deployed to Azure the sample uses managed identity and a virtual network to make sure deployment is secure by default. You can opt out of a VNet being used in the sample by setting `SKIP_VNET` to true in the AZD parameters.
 
+This sample implements a simple function that copies PDF files from an `unprocessed-pdf` container to a `processed-pdf` container when new blobs are created. This straightforward example showcases how to use the Event Grid blob trigger to automatically respond to blob creation events in near real-time.
+
 ## Benefits of Event Grid Blob Trigger
 
 This sample uses the Event Grid source type for the Blob trigger, which provides significant advantages over the traditional scan-based approach:
