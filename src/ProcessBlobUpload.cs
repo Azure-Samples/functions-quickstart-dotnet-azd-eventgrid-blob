@@ -17,7 +17,6 @@ namespace Company.Function
             _logger = logger;
             // Create a BlobServiceClient using the factory and get the container client for processed PDFs
             _copyContainerClient = blobClientFactory.CreateClient("ProcessBlobUpload").GetBlobContainerClient("processed-pdf");
-            _copyContainerClient.CreateIfNotExists();
         }
 
         [Function(nameof(ProcessBlobUpload))]
@@ -28,7 +27,7 @@ namespace Company.Function
             _logger.LogInformation($"C# Blob Trigger (using Event Grid) processed blob\n Name: {name} \n Size: {fileSize} bytes");
 
             // Simple demonstration of an async operation - copy to a processed container
-            await CopyToProcessedContainerAsync(stream, name);
+            await CopyToProcessedContainerAsync(stream, "processed_" + name);
             
             _logger.LogInformation($"PDF processing complete for {name}");
         }

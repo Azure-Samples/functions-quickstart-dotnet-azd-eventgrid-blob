@@ -19,7 +19,7 @@ languages:
 
 # Azure Functions C# Event Grid Blob Trigger using Azure Developer CLI
 
-This template repository contains an Azure Functions reference sample using the Blob trigger with Event Grid source type, written in C# (isolated process mode) and deployed to Azure using the Azure Developer CLI (`azd`). When deployed to Azure the sample uses managed identity and a virtual network to make sure deployment is secure by default. You can opt out of a VNet being used in the sample by setting `SKIP_VNET` to true in the AZD parameters.
+This template repository contains an Azure Functions reference sample using the Blob trigger with Event Grid source type, written in C# (isolated process mode) and deployed to Azure using the Azure Developer CLI (`azd`). When deployed to Azure the sample uses managed identity and a virtual network to make sure deployment is secure by default. You can control whether a VNet is used in the sample by setting `VNET_ENABLED` to true or false in the AZD parameters.
 
 This sample implements a simple function that copies PDF files from an `unprocessed-pdf` container to a `processed-pdf` container when new blobs are created. This straightforward example showcases how to use the Event Grid blob trigger to automatically respond to blob creation events in near real-time.
 
@@ -73,15 +73,7 @@ Create two containers in the local storage emulator called `processed-pdf` and `
 
 1. Ensure Azurite is running. For more details see [Run Azurite](https://learn.microsoft.com/en-us/azure/storage/common/storage-use-azurite#run-azurite)
 
-2. Use Azure Storage Explorer, Azure CLI, or the VS Code Storage Extension to create the containers.
-
-   **Using Azure CLI:**
-   Run the following commands to create the containers:
-
-    ```bash
-    az storage container create --name processed-pdf --connection-string UseDevelopmentStorage=true
-    az storage container create --name unprocessed-pdf --connection-string UseDevelopmentStorage=true
-    ```
+2. Use Azure Storage Explorer, or the VS Code Storage Extension to create the containers.
 
    **Using Azure Storage Explorer:**
    + Install [Azure Storage Explorer](https://azure.microsoft.com/en-us/products/storage/storage-explorer/#Download-4)
@@ -97,15 +89,9 @@ Create two containers in the local storage emulator called `processed-pdf` and `
    + Click on the Azure extension icon in VS Code
    + Under `Workspace`, expand `Local Emulator`
    + Right click on `Blob Containers` and select `Create Blob Container`
+   + Name the containers `processed-pdf` and `unprocessed-pdf`
 
 3. Upload the PDF files from the `data` folder to the `unprocessed-pdf` container.
-
-    **Using Azure CLI:**
-    Run the following command to upload the files:
-
-    ```bash
-    az storage blob upload-batch --source ./data --destination unprocessed-pdf --connection-string UseDevelopmentStorage=true
-    ```
 
     **Using Azure Storage Explorer:**
     + Open Azure Storage Explorer.
@@ -147,36 +133,7 @@ Create two containers in the local storage emulator called `processed-pdf` and `
 
 Now that the storage emulator is running, has files on the `unprocessed-pdf` container, and our app is running, we can execute the `ProcessBlobUpload` function to simulate a new blob event.
 
-+ If you are using VS Code or Visual Studio, you can open the [`test.http`](./test.http) project file, update the port on the `localhost` URL (if needed), and then click on Send Request to call the locally running `ProcessBlobUpload` function.
-
-+ Otherwise, use an HTTP client tool for making HTTP calls and send a **POST** to `http://localhost:7071/runtime/webhooks/blobs?functionName=Host.Functions.ProcessBlobUpload` (update the port if needed), headers `content-type: application/json` and `aeg-event-type: Notification`, with the following body:
-
-    ```json
-    {
-      "source": "/subscriptions/{subscription-id}/resourceGroups/Storage/providers/Microsoft.Storage/storageAccounts/my-storage-account",
-      "subject": "/blobServices/default/containers/unprocessed-pdf/blobs/Benefit_Options.pdf",
-      "type": "Microsoft.Storage.BlobCreated",
-      "time": "2021-08-16T02:51:26.4248221Z",
-      "id": "beb21a5e-401e-002b-3749-928517060431",
-      "data": {
-        "api": "PutBlob",
-        "clientRequestId": "89bc72c2-5dfe-4d9f-9706-43612c1bd01b",
-        "requestId": "beb21a5e-401e-002b-3749-928517000000",
-        "eTag": "0x8D96060BDA19D9D",
-        "contentType": "application/pdf",
-        "contentLength": 142977,
-        "blobType": "BlockBlob",
-        "accessTier": "Hot",
-        "url": "https://mystorage.blob.core.windows.net/unprocessed-pdf/Benefit_Options.pdf",
-        "sequencer": "0000000000000000000000000000B00D0000000005b058d3",
-        "storageDiagnostics": {
-          "batchId": "23f68872-a006-0065-0049-9240f2000000"
-        }
-      },
-      "specversion": "1.0"
-    }
-    ```
-+ The above will trigger the function to process the `Benefit_Options.pdf` file. You can update the file name in the JSON to process other PDF files.
++ If you are using VS Code, Visual Studio, or other tooling that supports .http files, you can open the [`test.http`](./test.http) project file, update the port on the `localhost` URL (if needed), and then click on Send Request to call the locally running `ProcessBlobUpload` function. This will trigger the function to process the `Benefit_Options.pdf` file. You can update the file name in the JSON to process other PDF files.
 
 ## Source Code
 
@@ -189,9 +146,9 @@ The function code for the `ProcessBlobUpload` endpoint is defined in [`ProcessBl
         using var blobStreamReader = new StreamReader(stream);
         var fileSize = stream.Length;
         _logger.LogInformation($"C# Blob Trigger (using Event Grid) processed blob\n Name: {name} \n Size: {fileSize} bytes");
-    
+
         // Simple demonstration of an async operation - copy to a processed container
-        await CopyToProcessedContainerAsync(stream, name);
+        await CopyToProcessedContainerAsync(stream, "processed_" + name);
         
         _logger.LogInformation($"PDF processing complete for {name}");
     }
@@ -201,16 +158,16 @@ The `CopyToProcessedContainerAsync` method that id calls uses the dependency inj
 
 ## Deploy to Azure
 
-If required you can opt-out of a VNet being used in the sample. To do so, use `azd env` to configure `SKIP_VNET` to `true` before running `azd up`:
+Run this command from the base folder to provision the function app and other required Azure Azure resources, and deploy your code:
 
 ```bash
-azd env set SKIP_VNET true
 azd up
 ```
 
-Then run this command to provision the function app and other required Azure Azure resources, and deploy your code:
+If required you can opt-out of a VNet being used in the sample. To do so, use `azd env` to configure `VNET_ENABLED` to `false` before running `azd up`:
 
 ```bash
+azd env set VNET_ENABLED false
 azd up
 ```
 
