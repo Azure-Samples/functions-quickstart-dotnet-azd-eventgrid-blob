@@ -23,6 +23,8 @@ This template repository contains an Azure Functions reference sample using the 
 
 This sample implements a simple function that copies PDF files from an `unprocessed-pdf` container to a `processed-pdf` container when new blobs are created. This straightforward example showcases how to use the Event Grid blob trigger to automatically respond to blob creation events in near real-time.
 
+![Architecture diagram for Azure Functions Event Grid Blob Trigger](./img/architecture.png)
+
 ## Benefits of Event Grid Blob Trigger
 
 This sample uses the Event Grid source type for the Blob trigger, which provides significant advantages over the traditional scan-based approach:
