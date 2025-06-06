@@ -39,6 +39,7 @@ The Event Grid approach is recommended for all new Blob trigger implementations,
 
 ## Prerequisites
 
++ [Azure Developer CLI](https://learn.microsoft.com/en-us/azure/developer/azure-developer-cli/install-azd)
 + [.NET 8 SDK](https://dotnet.microsoft.com/download/dotnet/8.0)
 + [Azure Functions Core Tools](https://learn.microsoft.com/azure/azure-functions/functions-run-local?pivots=programming-language-csharp#install-the-azure-functions-core-tools)
 + To use Visual Studio to run and debug locally:
@@ -159,6 +160,12 @@ The function code for the `ProcessBlobUpload` endpoint is defined in [`ProcessBl
 The `CopyToProcessedContainerAsync` method that id calls uses the dependency injected `_copyContainerClient` blob client instance to upload the stream to the destination blob container.
 
 ## Deploy to Azure
+
+Login to the Azure Developer CLI if you haven't already:
+
+```bash
+azd auth login
+```
 
 Run this command from the base folder to provision the function app and other required Azure Azure resources, and deploy your code:
 
