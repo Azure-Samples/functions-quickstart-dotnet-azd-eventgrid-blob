@@ -10,11 +10,6 @@ builder.ConfigureFunctionsWebApplication();
 
 builder.Services
        .AddApplicationInsightsTelemetryWorkerService()
-       .ConfigureFunctionsApplicationInsights()
-       .AddAzureClients(clientBuilder =>
-        {
-            clientBuilder.AddBlobServiceClient(builder.Configuration.GetSection("PDFProcessorSTORAGE"))
-                .WithName("ProcessBlobUpload");
-        });
+       .ConfigureFunctionsApplicationInsights();
 
 builder.Build().Run();

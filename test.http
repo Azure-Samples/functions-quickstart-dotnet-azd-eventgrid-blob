@@ -6,7 +6,7 @@
  
 # Use for setting the blob container and blob name use for the blob trigger
 @blobContainer=unprocessed-pdf
-@blobName=employee_handbook.pdf
+@blobName=PerksPlus.pdf
  
 ### Send a sample event grid blob event to the blob trigger. blobContainer and blobName are set in the environment variables. The blob must exist before you call this function as it is retrieved by the trigger.
 POST  {{host}}/runtime/webhooks/blobs?functionName=Host.Functions.{{functionName}}
