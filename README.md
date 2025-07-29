@@ -78,38 +78,7 @@ Create two containers in the local storage emulator called `processed-pdf` and `
 
 2. Use Azure Storage Explorer, or the VS Code Storage Extension to create the containers.
 
-   **Using Azure Storage Explorer:**
-   + Install [Azure Storage Explorer](https://azure.microsoft.com/en-us/products/storage/storage-explorer/#Download-4)
-   + Open Azure Storage Explorer.
-   + Connect to the local emulator by selecting `Attach to a local emulator.`
-   + Navigate to the `Blob Containers` section.
-   + Right-click and select `Create Blob Container.`
-   + Name the containers `processed-pdf` and `unprocessed-pdf`.
-
-   **Using VS Code Storage Extension:**
-   + Install the VS Code [Azure Storage extension](https://marketplace.visualstudio.com/items?itemName=ms-azuretools.vscode-azurestorage)
-   + Ensure Azurite is running
-   + Click on the Azure extension icon in VS Code
-   + Under `Workspace`, expand `Local Emulator`
-   + Right click on `Blob Containers` and select `Create Blob Container`
-   + Name the containers `processed-pdf` and `unprocessed-pdf`
-
 3. Upload the PDF files from the `data` folder to the `unprocessed-pdf` container.
-
-    **Using Azure Storage Explorer:**
-    + Open Azure Storage Explorer.
-    + Navigate to the `unprocessed-pdf` container.
-    + Click on "Upload" and select "Upload Folder" or "Upload Files."
-    + Choose the `data` folder or the specific PDF files to upload.
-    + Confirm the upload to the `unprocessed-pdf` container.
-
-   **Using VS Code Storage Extension:**
-   + Install the VS Code [Azure Storage extension](https://marketplace.visualstudio.com/items?itemName=ms-azuretools.vscode-azurestorage)
-   + Ensure Azurite is running
-   + Click on the Azure extension icon in VS Code
-   + Under `Workspace`, expand `Local Emulator`, expand `Blob Containers`
-   + Right click on `unprocessed-pdf` and select `Open in Explorer`
-   + Copy and paste all the pdf files from the `data` folder to it
 
 ## Run your app
 
@@ -140,24 +109,32 @@ Now that the storage emulator is running, has files on the `unprocessed-pdf` con
 
 ## Source Code
 
-The function code for the `ProcessBlobUpload` endpoint is defined in [`ProcessBlobUpload.cs`](./src/ProcessBlobUpload.cs). The `Function` attribute applied to the async `Run` method sets the name of the function endpoint.
+The function code for the `ProcessBlobUpload` endpoint is defined in [`ProcessBlobUpload.cs`](./src/ProcessBlobUpload.cs). The `Function` attribute applied to the async `Run` method sets the name of the function endpoint. It binds to BlobClient on the trigger, and to BlobContainerClient on the input binding. The function code then uploads to the destination container using the input stream from BlobClient from the blob being processed.
 
     ```csharp
-    [Function(nameof(ProcessBlobUpload))]
-    public async Task Run([BlobTrigger("unprocessed-pdf/{name}", Source = BlobTriggerSource.EventGrid, Connection = "PDFProcessorSTORAGE")] Stream stream, string name)
-    {
-        using var blobStreamReader = new StreamReader(stream);
-        var fileSize = stream.Length;
-        _logger.LogInformation($"C# Blob Trigger (using Event Grid) processed blob\n Name: {name} \n Size: {fileSize} bytes");
+        [Function(nameof(ProcessBlobUpload))]
+        public async Task Run([BlobTrigger("unprocessed-pdf/{name}", Source = BlobTriggerSource.EventGrid, Connection = "PDFProcessorSTORAGE")] BlobClient inputClient,
+        [BlobInput("processed-pdf", Connection = "PDFProcessorSTORAGE")] BlobContainerClient client,
+         string name, FunctionContext context, CancellationToken cancellationToken)
+        {
+            //We are using a stream to show how to process the blob data as a stream. To to move a blob to another container you could also bind to BlobClient directly and copy the blob https://learn.microsoft.com/en-us/azure/storage/blobs/storage-blob-copy-async-dotnet
+            var inputBlobProperties = await inputClient.GetPropertiesAsync(cancellationToken: cancellationToken);
+            var fileSize = inputBlobProperties.Value.ContentLength;
 
-        // Simple demonstration of an async operation - copy to a processed container
-        await CopyToProcessedContainerAsync(stream, "processed_" + name);
-        
-        _logger.LogInformation($"PDF processing complete for {name}");
-    }
+            var logger = context.GetLogger(nameof(ProcessBlobUpload));
+            logger.LogInformation($"C# Blob Trigger (using Event Grid) processed blob\n Name: {name} \n Size: {fileSize} bytes");
+
+            var newName = $"processed-{name}";
+
+            // Copy the blob to the processed container with a new name
+            await client.UploadBlobAsync(newName, await inputClient.OpenReadAsync(cancellationToken: cancellationToken), cancellationToken);
+            logger.LogInformation($"PDF processing complete for {name}. Blob copied to processed container with new name {newName}.");
+        }
     ```
 
-The `CopyToProcessedContainerAsync` method that id calls uses the dependency injected `_copyContainerClient` blob client instance to upload the stream to the destination blob container.
+## Verify that the files were copied
+
+Now that you have triggered the function, use the Azure Storage Explorer, or the VS Code Storage Extension, to check that the `processed-pdf` container has the processed file.
 
 ## Deploy to Azure
 
@@ -188,7 +165,7 @@ You're prompted to supply these required deployment parameters:
 | _Azure subscription_ | Subscription in which your resources are created.|
 | _Azure location_ | Azure region in which to create the resource group that contains the new Azure resources. Only regions that currently support the Flex Consumption plan are shown.|
 
-After publish completes successfully, the new resource group will have a storage account and the `processed-pdf` and `unprocessed-pdf` containers. Upload PDF files from the data folder to the `unprocessed-pdf` folder and then check `processed-pdf` for the file.
+After publish completes successfully, the new resource group will have a storage account and the `processed-pdf` and `unprocessed-pdf` containers. Upload PDF files from the data folder to the `unprocessed-pdf` folder and then check `processed-pdf` for the processed files.
 
 ## Redeploy your code
 
