@@ -411,7 +411,7 @@ __blobstorage__
 __queuestorage__
 AzuriteConfig
 
-//MacOS Finder metadata file
+## MacOS Finder metadata file
 .DS_Store
 
 ## Ignore Visual Studio temporary files, build results, and
