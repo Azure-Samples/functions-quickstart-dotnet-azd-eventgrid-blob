@@ -110,6 +110,7 @@ Now that the storage emulator is running, has files on the `unprocessed-pdf` con
 ## Source Code
 
 The function code for the `ProcessBlobUpload` endpoint is defined in [`ProcessBlobUpload.cs`](./src/ProcessBlobUpload.cs). The `Function` attribute applied to the async `Run` method sets the name of the function endpoint. It binds to BlobClient on the trigger, and to BlobContainerClient on the input binding. The function code then uploads to the destination container using the input stream from BlobClient from the blob being processed.
+The function code for the `ProcessBlobUpload` endpoint is defined in [`ProcessBlobUpload.cs`](./src/ProcessBlobUpload.cs). The `Function` attribute applied to the async `Run` method sets the name of the function endpoint. It binds to BlobClient on the trigger, and to BlobContainerClient on the input binding. The function code then uploads to the destination container using the input stream from BlobClient from the blob being processed.
 
     ```csharp
         [Function(nameof(ProcessBlobUpload))]
@@ -170,6 +171,7 @@ You're prompted to supply these required deployment parameters:
 | _Azure subscription_ | Subscription in which your resources are created.|
 | _Azure location_ | Azure region in which to create the resource group that contains the new Azure resources. Only regions that currently support the Flex Consumption plan are shown.|
 
+After publish completes successfully, the new resource group will have a storage account and the `processed-pdf` and `unprocessed-pdf` containers. Upload PDF files from the data folder to the `unprocessed-pdf` folder and then check `processed-pdf` for the processed files.
 After publish completes successfully, the new resource group will have a storage account and the `processed-pdf` and `unprocessed-pdf` containers. Upload PDF files from the data folder to the `unprocessed-pdf` folder and then check `processed-pdf` for the processed files.
 
 ## Redeploy your code
