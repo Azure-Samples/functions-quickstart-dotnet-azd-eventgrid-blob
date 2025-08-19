@@ -25,7 +25,7 @@ namespace Company.Function
                 return;
             }
             //Uploading the blob to the processed container using streams. You could add processing of the input stream logic here if needed.
-            await blobContainerClient.UploadBlobAsync($"processed-{name}", await sourceBlobClient.OpenReadAsync(cancellationToken: cancellationToken), cancellationToken);
+            await blobContainerClient.UploadBlobAsync(newBlobName, await sourceBlobClient.OpenReadAsync(cancellationToken: cancellationToken), cancellationToken);
             logger.LogInformation($"PDF processing complete for {name}. Blob copied to processed container with new name {newBlobName}.");
         }
     }

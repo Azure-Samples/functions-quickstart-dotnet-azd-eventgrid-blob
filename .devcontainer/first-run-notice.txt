@@ -5,7 +5,6 @@ To run a function enter folder with host.json and run:
 ```
 cd src
 func start
-``
 
 📚 Setup complete.  Functions docs can be found at: https://learn.microsoft.com/en-us/azure/azure-functions/
 
@@ -13,4 +12,4 @@ func start
 Automatically started Azurite in a new terminal window first via:
 ```
 npx azurite --location ~/.azurite
-``
+```
