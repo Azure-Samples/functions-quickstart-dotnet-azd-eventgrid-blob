@@ -1,3 +1,5 @@
+#!/bin/bash
+
 commands=("az")
 
 for cmd in "${commands[@]}"; do
