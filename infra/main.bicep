@@ -215,5 +215,6 @@ output AZURE_TENANT_ID string = tenant().tenantId
 output SERVICE_PROCESSOR_BASE_URL string = processor.outputs.SERVICE_PROCESSOR_BASE_URL
 output RESOURCE_GROUP string = rg.name
 output AZURE_FUNCTION_APP_NAME string = processor.outputs.SERVICE_PROCESSOR_NAME
+output AZURE_STORAGE_ACCOUNT_NAME string = storage.outputs.name
 output UNPROCESSED_PDF_CONTAINER_NAME string = unprocessedContainerName
 output UNPROCESSED_PDF_SYSTEM_TOPIC_NAME string = unprocessedPdfSystemTopicName
