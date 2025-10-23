@@ -24,6 +24,9 @@ namespace Company.Function
                 logger.LogInformation($"Blob {newBlobName} already exists in the processed container. Skipping upload.");
                 return;
             }
+
+            // Here you can add any processing logic for the input blob before uploading it to the processed container.
+
             //Uploading the blob to the processed container using streams. You could add processing of the input stream logic here if needed.
             await blobContainerClient.UploadBlobAsync(newBlobName, await sourceBlobClient.OpenReadAsync(cancellationToken: cancellationToken), cancellationToken);
             logger.LogInformation($"PDF processing complete for {name}. Blob copied to processed container with new name {newBlobName}.");
