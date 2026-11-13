@@ -10,8 +10,7 @@ RUN curl -fsSL https://deb.nodesource.com/setup_lts.x | sudo -E bash - \
     && sudo apt-get install -y nodejs
 
 # Install Azure Functions Core Tools
-# Preview with aarch64 support
-RUN sudo npm install -g azure-functions-core-tools@4.0.7332-preview1
+RUN sudo npm install -g azure-functions-core-tools@4.16.0
 
 # Install Azure Developer CLI
 RUN curl -fsSL https://aka.ms/install-azd.sh | bash

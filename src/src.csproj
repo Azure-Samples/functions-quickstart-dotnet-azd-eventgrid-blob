@@ -1,4 +1,4 @@
-﻿<Project Sdk="Azure.Functions.Sdk/1.0.0">
+﻿<Project Sdk="Azure.Functions.Sdk/1.0.2">
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
@@ -6,11 +6,14 @@
   </PropertyGroup>
   <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
-    <PackageReference Include="Microsoft.ApplicationInsights.WorkerService" Version="2.23.0" /> 
-    <PackageReference Include="Microsoft.Azure.Functions.Worker.ApplicationInsights" Version="2.0.0" /> 
+    <PackageReference Include="Azure.Identity" Version="1.21.0" />
+    <PackageReference Include="Azure.Monitor.OpenTelemetry.Exporter" Version="1.10.0" />
     <PackageReference Include="Microsoft.Azure.Functions.Worker" Version="2.52.0" />
-    <PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.Http.AspNetCore" Version="2.0.2" />
-    <PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.Storage.Blobs" Version="6.7.0" />
+    <PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.Http.AspNetCore" Version="2.1.1" />
+    <PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.Storage.Blobs" Version="6.8.2" />
+    <PackageReference Include="Microsoft.Azure.Functions.Worker.OpenTelemetry" Version="1.2.0" />
+    <PackageReference Include="Microsoft.Extensions.Azure" Version="1.14.1" />
+    <PackageReference Include="OpenTelemetry.Extensions.Hosting" Version="1.20.1" />
   </ItemGroup>
   <ItemGroup>
     <None Update="host.json">
