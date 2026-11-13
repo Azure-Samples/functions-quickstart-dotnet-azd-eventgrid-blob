@@ -60,12 +60,12 @@ Optional for uploading blobs:
 
 To initialize a project from this `azd` template, clone the GitHub template repository locally using the `git clone` command:
 
-    ```bash
-    git clone https://github.com/Azure-Samples/functions-quickstart-dotnet-azd-eventgrid-blob.git
-    cd functions-quickstart-dotnet-azd-eventgrid-blob
-    ```
+```bash
+git clone https://github.com/Azure-Samples/functions-quickstart-dotnet-azd-eventgrid-blob.git
+cd functions-quickstart-dotnet-azd-eventgrid-blob
+```
 
-    You can also clone the repository from your own fork in GitHub.
+You can also clone the repository from your own fork in GitHub.
 
 # Start and prepare the local storage emulator
 
@@ -104,39 +104,44 @@ Create two containers in the local storage emulator called `processed-pdf` and `
 
 Now that the storage emulator is running, has files on the `unprocessed-pdf` container, and our app is running, we can execute the `ProcessBlobUpload` function to simulate a new blob event.
 
-- If you are using VS Code, Visual Studio, or other tooling that supports .http files, you can open the [`test.http`](./test.http) project file, update the port on the `localhost` URL (if needed), and then click on Send Request to call the locally running `ProcessBlobUpload` function. This will trigger the function to process the `Benefit_Options.pdf` file. You can update the file name in the JSON to process other PDF files.
+- If you are using VS Code, Visual Studio, or other tooling that supports .http files, you can open the [`test.http`](./test.http) project file, update the port on the `localhost` URL (if needed), and then click on Send Request to call the locally running `ProcessBlobUpload` function. This will trigger the function to process the `PerksPlus.pdf` file. You can update the file name in the JSON to process other PDF files.
 
 ## Source Code
 
 The function code for the `ProcessBlobUpload` endpoint is defined in [`ProcessBlobUpload.cs`](./src/ProcessBlobUpload.cs). The `Function` attribute applied to the async `Run` method sets the name of the function endpoint. It binds to BlobClient on the trigger, and to BlobContainerClient on the input binding. The function code then uploads to the destination container using the input stream from BlobClient from the blob being processed.
 
-    ```csharp
-        [Function(nameof(ProcessBlobUpload))]
-        public async Task Run([BlobTrigger("unprocessed-pdf/{name}", Source = BlobTriggerSource.EventGrid, Connection = "PDFProcessorSTORAGE")] BlobClient sourceBlobClient,
-        [BlobInput("processed-pdf", Connection = "PDFProcessorSTORAGE")] BlobContainerClient blobContainerClient,
-         string name, FunctionContext context, CancellationToken cancellationToken)
+```csharp
+    [Function(nameof(ProcessBlobUpload))]
+    public async Task Run([BlobTrigger("unprocessed-pdf/{name}", Source = BlobTriggerSource.EventGrid, Connection = "PDFProcessorSTORAGE")] BlobClient sourceBlobClient,
+    [BlobInput("processed-pdf", Connection = "PDFProcessorSTORAGE")] BlobContainerClient blobContainerClient,
+     string name, FunctionContext context, CancellationToken cancellationToken)
+    {
+        var inputBlobProperties = await sourceBlobClient.GetPropertiesAsync(cancellationToken: cancellationToken);
+        var fileSize = inputBlobProperties.Value.ContentLength;
+
+        var logger = context.GetLogger(nameof(ProcessBlobUpload));
+        logger.LogInformation($"C# Blob Trigger (using Event Grid) processed blob\n Name: {name} \n Size: {fileSize} bytes");
+
+        // Copy the blob to the processed container with a new name
+        string newBlobName = $"processed-{name}";
+        if (await blobContainerClient.GetBlobClient(newBlobName).ExistsAsync(cancellationToken: cancellationToken))
         {
-            var inputBlobProperties = await sourceBlobClient.GetPropertiesAsync(cancellationToken: cancellationToken);
-            var fileSize = inputBlobProperties.Value.ContentLength;
-
-            var logger = context.GetLogger(nameof(ProcessBlobUpload));
-            logger.LogInformation($"C# Blob Trigger (using Event Grid) processed blob\n Name: {name} \n Size: {fileSize} bytes");
-
-            // Copy the blob to the processed container with a new name
-            string newBlobName = $"processed-{name}";
-            if (await blobContainerClient.GetBlobClient(newBlobName).ExistsAsync(cancellationToken: cancellationToken))
-            {
-                logger.LogInformation($"Blob {newBlobName} already exists in the processed container. Skipping upload.");
-                return;
-            }
-
-            // Here you can add any processing logic for the input blob before or while uploading it to the processed container.
-
-            //Uploading the blob to the processed container using streams. You could add processing of the input stream logic here if needed.
-            await blobContainerClient.UploadBlobAsync(newBlobName, await sourceBlobClient.OpenReadAsync(cancellationToken: cancellationToken), cancellationToken);
-            logger.LogInformation($"PDF processing complete for {name}. Blob copied to processed container with new name {newBlobName}.");
+            logger.LogInformation($"Blob {newBlobName} already exists in the processed container. Skipping upload.");
+            return;
         }
-    ```
+
+        // Here you can add any processing logic for the input blob before or while uploading it to the processed container.
+
+        //Uploading the blob to the processed container using streams. You could add processing of the input stream logic here if needed.
+        await blobContainerClient.UploadBlobAsync(newBlobName, await sourceBlobClient.OpenReadAsync(cancellationToken: cancellationToken), cancellationToken);
+        logger.LogInformation($"PDF processing complete for {name}. Blob copied to processed container with new name {newBlobName}.");
+    }
+```
+
+[`Program.cs`](./src/Program.cs) exports worker OpenTelemetry to
+Application Insights only when `APPLICATIONINSIGHTS_CONNECTION_STRING` is set,
+authenticating with the managed identity in the `AzureMonitorExporter`
+settings.
 
 ## Verify that the files were copied
 
