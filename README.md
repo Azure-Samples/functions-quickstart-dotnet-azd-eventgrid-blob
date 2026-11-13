@@ -40,9 +40,9 @@ The Event Grid approach is recommended for all new Blob trigger implementations,
 
 - [Azure Developer CLI](https://learn.microsoft.com/en-us/azure/developer/azure-developer-cli/install-azd)
 - [.NET 10 SDK](https://dotnet.microsoft.com/download/dotnet/10.0)
-- [Azure Functions Core Tools](https://learn.microsoft.com/azure/azure-functions/functions-run-local?pivots=programming-language-csharp#install-the-azure-functions-core-tools)
+- [Azure Functions Core Tools v4](https://learn.microsoft.com/azure/azure-functions/functions-run-local?pivots=programming-language-csharp#install-the-azure-functions-core-tools) (4.16.0 or later)
 - To use Visual Studio to run and debug locally:
-  - [Visual Studio 2022](https://visualstudio.microsoft.com/vs/).
+  - [Visual Studio 2026](https://visualstudio.microsoft.com/vs/) or later.
   - Make sure to select the **Azure development** workload during installation.
 - To use Visual Studio Code to run and debug locally:
   - [Visual Studio Code](https://code.visualstudio.com/)
@@ -167,9 +167,9 @@ The first time you run `azd up` you will be prompted to supply these required de
 
 | Parameter | Description |
 | ---- | ---- |
-| _Environment name_ | An environment that's used to maintain a unique deployment context for your app. You won't be prompted if you created the local project using `azd init`.|
-| _Azure subscription_ | Azure subscription in which your resources are created.|
-| _Azure location_ | Azure region in which to create the resource group that contains the new Azure resources. You can double check what regions support Flex Consumption [using the AZ CLI](https://learn.microsoft.com/cli/azure/functionapp?view=azure-cli-latest#az-functionapp-list-flexconsumption-locations).|
+| _Environment name_ | An environment that's used to maintain a unique deployment context for your app. You won't be prompted if you created the local project using `azd init`. |
+| _Azure subscription_ | Azure subscription in which your resources are created. |
+| _Azure location_ | Azure region in which to create the resource group that contains the new Azure resources. You can double check what regions support Flex Consumption [using the AZ CLI](https://learn.microsoft.com/cli/azure/functionapp?view=azure-cli-latest#az-functionapp-list-flexconsumption-locations). |
 
 This `azd up` command will perform the following steps for you:
 
@@ -191,7 +191,7 @@ If you deployed with VNet enabled (the default), you'll need to add your local I
   curl ifconfig.me
   ```
 
-2. Configure the storage account network access settings using Azure CLI:
+1. Configure the storage account network access settings using Azure CLI:
 
   ```bash
   # Get the storage account name from your deployment
@@ -221,13 +221,13 @@ If you deployed with VNet enabled (the default), you'll need to add your local I
   az storage blob upload --account-name $STORAGE_ACCOUNT --container-name unprocessed-pdf --name test.pdf --file ./data/Benefit_Options.pdf --auth-mode login
   ```
 
-2. **Using Azure Storage Explorer:**
+1. **Using Azure Storage Explorer:**
 
 - Connect to your Azure storage account
 - Navigate to the `unprocessed-pdf` container
 - Upload PDF files from the `data` folder
 
-3. **Using Azure Portal:**
+1. **Using Azure Portal:**
 
 - Go to your storage account in the Azure portal
 - Select **Containers** > **unprocessed-pdf**
@@ -243,7 +243,7 @@ After uploading files, check that they were processed:
 - In the **Overview** page click on **Invocations and more** for the **ProcessBlobUpload** function
 - You should see invocation logs showing the blob processing. Note this could take a few minutes to reflect.
 
-2. **Check processed files:**
+1. **Check processed files:**
 
 - Navigate to the `processed-pdf` container in your storage account
 - Verify that files appear with the `processed-` prefix

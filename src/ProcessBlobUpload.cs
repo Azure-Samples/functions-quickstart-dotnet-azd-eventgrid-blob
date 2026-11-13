@@ -1,5 +1,4 @@
 using Microsoft.Azure.Functions.Worker;
-using Microsoft.Extensions.Logging;
 using Azure.Storage.Blobs;
 
 namespace Company.Function

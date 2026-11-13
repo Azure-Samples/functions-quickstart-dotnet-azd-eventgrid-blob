@@ -35,7 +35,12 @@ var baseAppSettings = {
   // Application Insights settings are always included
   APPLICATIONINSIGHTS_AUTHENTICATION_STRING: applicationInsightsIdentity
   APPLICATIONINSIGHTS_CONNECTION_STRING: applicationInsights.properties.ConnectionString
+
+  // Managed identity used by the worker's OpenTelemetry exporter for Entra-only ingestion
+  AzureMonitorExporter__credential: 'managedidentity'
 }
+
+var azureMonitorExporterIdentity = identityType == 'UserAssigned' ? { AzureMonitorExporter__clientId: identityClientId } : {}
 
 // Dynamically build storage endpoint settings based on feature flags
 var blobSettings = enableBlob ? { AzureWebJobsStorage__blobServiceUri: stg.properties.primaryEndpoints.blob } : {}
@@ -50,7 +55,8 @@ var allAppSettings = union(
   queueSettings,
   tableSettings,
   fileSettings,
-  baseAppSettings
+  baseAppSettings,
+  azureMonitorExporterIdentity
 )
 
 resource stg 'Microsoft.Storage/storageAccounts@2022-09-01' existing = {
