@@ -6,7 +6,7 @@ description: "Create a .NET isolated Azure Functions app that processes Azure Bl
 
 projects:
   - name: Azure Functions Event Grid Blob Trigger QuickStart (.NET)
-    shortName: blob-eventgrid-trigger-csharp-azd
+    shortName: functions-quickstart-dotnet-eventgrid-blob
     root: .
     stack: dotnet
     language: "C#"
