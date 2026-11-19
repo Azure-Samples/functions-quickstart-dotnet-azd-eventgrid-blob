@@ -1,0 +1,12 @@
+# This descriptor drives template package creation in the packaging pipeline.
+schemaVersion: 1
+
+identity: Azure.Functions.Templates.EventGridBlobDotNet
+description: "Create a .NET isolated Azure Functions app that processes Azure Blob Storage events delivered through Event Grid, with Bicep infrastructure for deployment using azd."
+
+projects:
+  - name: Azure Functions Event Grid Blob Trigger QuickStart (.NET)
+    shortName: blob-eventgrid-trigger-csharp-azd
+    root: .
+    stack: dotnet
+    language: "C#"
